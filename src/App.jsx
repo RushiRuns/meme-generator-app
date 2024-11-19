@@ -1,35 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+// import { Button } from "./components/ui/button";
+// import {
+//   Card,
+//   CardContent,
+//   CardDescription,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle,
+// } from "./components/ui/card";
+// import memesData from "../memesData";
+import "./App.css";
+import { data } from "autoprefixer";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [meme, setMeme] = useState({
+    topText: "",
+    bottomText: "",
+    randomImage: "http://i.imgflip.com/1bij.jpg",
+  });
+  const [allMemeImages, setAllMemeImages] = useState([]);
+
+  useEffect(() => {
+    fetch("https://api.imgflip.com/get_memes")
+      .then((res) => res.json())
+      .then((data) => setAllMemeImages(data.data.memes));
+  }, []);
+
+  function getMemeImage() {
+    const randomNumber = Math.floor(Math.random() * allMemeImages.length);
+    const url = allMemeImages[randomNumber].url;
+    setMeme((prevMeme) => ({
+      ...prevMeme,
+      randomImage: url,
+    }));
+  }
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setMeme((prevMeme) => ({
+      ...prevMeme,
+      [name]: value,
+    }));
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="meme-container">
+      <input
+        type="text"
+        name="topText"
+        placeholder="top text"
+        onChange={handleChange}
+        value={meme.topText}
+        className="inp"
+      />
+      <input
+        type="text"
+        name="bottomText"
+        placeholder="bottom text"
+        onChange={handleChange}
+        value={meme.bottomText}
+        className="inp"
+      />
+      <button onClick={getMemeImage}>Get Meme</button>
+      <div className="div">
+        <img src={meme.randomImage} alt="" />
+        <p className="text-top">{meme.topText}</p>
+        <p className="text-bottom">{meme.bottomText}</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
